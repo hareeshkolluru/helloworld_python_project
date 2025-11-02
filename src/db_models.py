@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlalchemy import String, Text, Integer, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
+from pgvector.sqlalchemy import Vector
 from src.database import Base
 
 
@@ -17,6 +18,10 @@ class ImagePost(Base):
         DateTime(timezone=True),
         default=datetime.utcnow,
         nullable=False
+    )
+    embedding: Mapped[list[float] | None] = mapped_column(
+        Vector(1536),  # OpenAI embedding dimension
+        nullable=True
     )
 
     def to_response(self) -> dict:

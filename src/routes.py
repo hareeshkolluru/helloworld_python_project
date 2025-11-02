@@ -12,6 +12,7 @@ from src.config import get_settings
 from src.models import HealthResponse, HelloResponse, ImagePostResponse, ImageUploadResponse
 from src.database import get_db
 from src.db_models import ImagePost
+from src.indexing_service import get_indexing_service
 
 router = APIRouter()
 settings = get_settings()
@@ -87,6 +88,19 @@ async def upload_image(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
 
+    # Generate embedding using LlamaIndex
+    embedding = None
+    try:
+        indexing_service = get_indexing_service()
+        embedding = await indexing_service.generate_image_embedding(str(file_path))
+        
+        # Optionally generate caption if none provided
+        if not caption:
+            caption = await indexing_service.generate_caption_from_image(str(file_path))
+    except Exception as e:
+        # Log error but continue - embedding is optional
+        print(f"Warning: Failed to generate embedding: {str(e)}")
+
     # Create database entry
     db_image = ImagePost(
         id=str(uuid.uuid4()),
@@ -94,6 +108,7 @@ async def upload_image(
         caption=caption,
         likes=0,
         created_at=datetime.utcnow(),
+        embedding=embedding,
     )
 
     db.add(db_image)

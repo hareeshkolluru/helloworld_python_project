@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "postgresql+asyncpg://helloworld:helloworld123@localhost:5432/helloworld_db"
 
+    # OpenAI
+    openai_api_key: str = ""
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def parse_cors_origins(cls, v: str | list[str] | None) -> list[str]:

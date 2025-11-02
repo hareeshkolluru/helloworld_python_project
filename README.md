@@ -1,4 +1,15 @@
-# HelloWorld FastAPI Full-Stack Project
+# Hell### Backend
+- 🚀 **FastAPI** framework for high performance
+- 🔤 **Type hints** throughout with Pydantic validation
+- 🧪 **Pytest** for comprehensive testing
+- 🔒 **CORS** middleware configured
+- ⚙️ **Environment-based** configuration
+- 📊 **Automatic API documentation** (Swagger/OpenAPI)
+- 📷 **Image upload** and storage
+- 🗂️ **Timeline API** for image posts
+- 🧠 **AI-powered image indexing** with LlamaIndex
+- 🔍 **Vector embeddings** stored in PostgreSQL with pgvector
+- 🤖 **Automatic caption generation** using OpenAI GPT-4o-ministAPI Full-Stack Project
 
 A modern full-stack web application with FastAPI backend and React frontend, featuring image uploads and timeline display with Material Design and Apple Human Interface principles.
 
@@ -32,7 +43,10 @@ helloworld_python_project/
 │   ├── main.py             # FastAPI application entry point
 │   ├── config.py           # Configuration management
 │   ├── models.py           # Pydantic models
-│   └── routes.py           # API route handlers (including image endpoints)
+│   ├── routes.py           # API route handlers (including image endpoints)
+│   ├── database.py         # Database connection and session management
+│   ├── db_models.py        # SQLAlchemy database models with vector support
+│   └── indexing_service.py # LlamaIndex image embedding service
 ├── frontend/               # Frontend React application
 │   ├── src/
 │   │   ├── components/     # React components
@@ -64,6 +78,7 @@ helloworld_python_project/
 - Python 3.10 or higher
 - Node.js 18 or higher (for frontend)
 - **Docker Desktop** (for PostgreSQL database)
+- **OpenAI API Key** (for image embedding and caption generation)
 - [uv](https://docs.astral.sh/uv/) package manager (recommended) or pip
 - npm or yarn (for frontend dependencies)
 
@@ -96,6 +111,7 @@ helloworld_python_project/
 5. Create `.env` file:
    ```bash
    cp .env.example .env
+   # Edit .env and add your OPENAI_API_KEY
    ```
 
 6. Start both backend and frontend:
@@ -202,8 +218,44 @@ The applications will be available at:
 - **POST** `/api/v1/images` - Upload an image with optional caption
   - Accepts: `multipart/form-data`
   - Fields: `file` (image), `caption` (optional string)
+  - Automatically generates embeddings and stores in PostgreSQL with pgvector
+  - Auto-generates caption if none provided using GPT-4o-mini
 - **GET** `/api/v1/images` - Get all uploaded images (timeline)
 - **GET** `/api/v1/images/{filename}` - Serve a specific image file
+
+## AI-Powered Features
+
+This application uses **LlamaIndex** and **OpenAI** to provide intelligent image processing:
+
+### Automatic Image Indexing
+When you upload an image, the system:
+1. 🖼️ **Analyzes the image** using GPT-4o-mini multimodal model
+2. 📝 **Generates a detailed description** of the image content
+3. 🔢 **Creates a 1536-dimension embedding vector** from the description
+4. 💾 **Stores the embedding** in PostgreSQL using pgvector extension
+5. 🤖 **Auto-generates a caption** if you don't provide one
+
+### Vector Search Capabilities
+The embeddings stored in pgvector enable:
+- **Semantic image search** - Find similar images by meaning, not just metadata
+- **Content-based recommendations** - Suggest related images
+- **Advanced querying** - Search images by describing what you're looking for
+
+### Technologies Used
+- **LlamaIndex**: Framework for connecting LLMs with data
+- **OpenAI GPT-4o-mini**: Multimodal model for image understanding
+- **text-embedding-3-small**: Efficient embedding model (1536 dimensions)
+- **pgvector**: PostgreSQL extension for vector similarity search
+
+### Setup Requirements
+To enable AI features, you need:
+1. An OpenAI API key (get one at https://platform.openai.com/api-keys)
+2. Add to your `.env` file:
+   ```bash
+   OPENAI_API_KEY=sk-your-api-key-here
+   ```
+
+> **Note**: If the OpenAI API key is not configured, images will still upload successfully, but embedding generation will be skipped and captions won't be auto-generated.
 
 ### Testing
 
@@ -273,6 +325,8 @@ Configuration is managed through environment variables. See `.env.example` for a
 - `PORT`: Server port
 - `CORS_ORIGINS`: Allowed CORS origins (comma-separated)
 - `API_V1_PREFIX`: API version prefix
+- `DATABASE_URL`: PostgreSQL connection string
+- `OPENAI_API_KEY`: OpenAI API key for embeddings and captions (**required**)
 
 ## Package Management with uv
 
